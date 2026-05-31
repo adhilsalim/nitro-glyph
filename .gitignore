@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# VSCode
+.vscode/
+
+# JetBrains
+.idea/
+
+# Build
+build/
+dist/
+
+# Kernel
+*.o
+*.ko
+*.mod
+*.mod.c
+*.mod.o
+*.symvers
+Module.symvers
+modules.order
+
+# Logs
+*.log
