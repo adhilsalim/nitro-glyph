@@ -7,6 +7,7 @@
 #include <linux/ioctl.h>
 #include <linux/acpi.h>
 #include <linux/wmi.h>
+#include <linux/errno.h>
 
 #include "nitro_glyph.h"
 
@@ -51,6 +52,19 @@ static u8 nitro_zone_to_fw(u8 zone)
         return 0;
     }
 }
+
+static char *nitro_devnode(
+    const struct device *dev,
+    umode_t *mode)
+{
+    if (mode)
+        *mode = 0666;
+
+    return NULL;
+}
+
+static int nitro_set_effect(
+    const struct nitro_effect *effect);
 
 static int nitro_open(struct inode *inode, struct file *file)
 {
@@ -100,6 +114,9 @@ static int nitro_enable(void)
             "nitro_glyph: enable status=%d\n",
             status);
     }
+
+    if (ACPI_FAILURE(status))
+        return -EIO;
 
     return 0;
 }
@@ -155,6 +172,9 @@ static int nitro_set_effect(
     if (effect->speed > 12)
         return -EINVAL;
 
+    if (effect->direction > 2)
+        return -EINVAL;
+
     payload[0] = effect->mode;
     payload[1] = effect->speed;
     payload[2] = effect->brightness;
@@ -166,10 +186,6 @@ static int nitro_set_effect(
 
     payload[9] = 1;
 
-    /*
-     * Firmware quirk:
-     * Wave mode requires byte 3 = 8
-     */
     if (effect->mode == NITRO_WAVE)
         payload[3] = 8;
 
@@ -184,6 +200,9 @@ static int nitro_set_effect(
             ACER_WMID_SET_GAMINGKBBL_METHODID,
             &input,
             NULL);
+
+        if (ACPI_FAILURE(status))
+            return -EIO;
     }
 
     pr_info(
@@ -200,8 +219,7 @@ static int nitro_disable(void)
 {
     struct nitro_effect effect = {
         .mode = NITRO_STATIC,
-        .brightness = 0
-    };
+        .brightness = 0};
 
     return nitro_set_effect(&effect);
 }
@@ -256,6 +274,9 @@ static const struct file_operations nitro_fops = {
     .open = nitro_open,
     .release = nitro_release,
     .unlocked_ioctl = nitro_ioctl,
+#ifdef CONFIG_COMPAT
+    .compat_ioctl = nitro_ioctl,
+#endif
 };
 
 static int __init nitro_init(void)
@@ -292,6 +313,8 @@ static int __init nitro_init(void)
         unregister_chrdev_region(nitro_dev, 1);
         return PTR_ERR(nitro_class);
     }
+
+    nitro_class->devnode = nitro_devnode;
 
     if (IS_ERR(device_create(
             nitro_class,
