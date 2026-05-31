@@ -16,7 +16,7 @@ enum nitro_mode {
 };
 
 struct nitro_zone {
-    __u8 zone;
+    __u8 zone;      /* 1..4 */
     __u8 red;
     __u8 green;
     __u8 blue;
@@ -30,6 +30,7 @@ struct nitro_effect {
     __u8 red;
     __u8 green;
     __u8 blue;
+    __u8 reserved;
 };
 
 #define NITRO_IOCTL_ENABLE \
@@ -40,5 +41,8 @@ struct nitro_effect {
 
 #define NITRO_IOCTL_SET_EFFECT \
     _IOW(NITRO_MAGIC, 3, struct nitro_effect)
+
+#define NITRO_IOCTL_DISABLE \
+    _IO(NITRO_MAGIC, 4)
 
 #endif
