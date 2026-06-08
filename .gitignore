@@ -13,6 +13,7 @@ modules.order
 # Python
 __pycache__/
 *.pyc
+*.egg-info
 
 # IDE
 .vscode/
@@ -20,8 +21,3 @@ __pycache__/
 
 # Logs
 *.log
-
-# Test binaries
-tests/test_enable
-tests/test_zone
-tests/test_effect
