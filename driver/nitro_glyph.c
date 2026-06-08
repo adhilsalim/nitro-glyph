@@ -66,6 +66,8 @@ static char *nitro_devnode(
 static int nitro_set_effect(
     const struct nitro_effect *effect);
 
+static int nitro_disable(void);
+
 static int nitro_open(struct inode *inode, struct file *file)
 {
     pr_info("nitro_glyph: device opened\n");
@@ -125,6 +127,14 @@ static int nitro_set_zone(
     const struct nitro_zone *zone)
 {
     acpi_status status;
+    struct nitro_effect effect = {
+        .mode = NITRO_STATIC,
+        .brightness = 100,
+        .direction = 0,
+        .red = 0,
+        .green = 0,
+        .blue = 0
+    };
 
     struct nitro_fw_zone fw = {
         .zone = nitro_zone_to_fw(zone->zone),
@@ -138,6 +148,11 @@ static int nitro_set_zone(
 
     if (!fw.zone)
         return -EINVAL;
+
+    status = nitro_set_effect(&effect);
+
+    if (status < 0)
+        return status;
 
     status = wmi_evaluate_method(
         WMID_GUID4,
@@ -184,9 +199,15 @@ static int nitro_set_effect(
     payload[6] = effect->green;
     payload[7] = effect->blue;
 
+    if (effect->mode == NITRO_WAVE || effect->mode == NITRO_NEON) {
+        payload[5] = 0;
+        payload[6] = 0;
+        payload[7] = 0;
+    }
+
     payload[9] = 1;
 
-    if (effect->mode == NITRO_WAVE)
+    if (effect->mode == NITRO_WAVE || effect->mode == NITRO_NEON)
         payload[3] = 8;
 
     {
@@ -219,7 +240,12 @@ static int nitro_disable(void)
 {
     struct nitro_effect effect = {
         .mode = NITRO_STATIC,
-        .brightness = 0};
+        .brightness = 0,
+        .direction = 0,
+        .red = 0,
+        .green = 0,
+        .blue = 0
+    };
 
     return nitro_set_effect(&effect);
 }
