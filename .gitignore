@@ -14,6 +14,11 @@ modules.order
 __pycache__/
 *.pyc
 *.egg-info
+.venv/
+
+# Python build outputs
+python/build/
+python/dist/
 
 # IDE
 .vscode/
@@ -21,3 +26,6 @@ __pycache__/
 
 # Logs
 *.log
+
+# Local release config
+python/release.ini

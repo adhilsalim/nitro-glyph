@@ -1,0 +1,11 @@
+[release]
+# Copy this file to release.ini and keep release.ini untracked.
+
+# Package source directory. Leave this as '.' when running from python/.
+project_dir = .
+
+# Optional: store a token here, or set PYPI_TOKEN in your shell instead.
+# token = pypi-...
+
+# Usually leave this as __token__.
+username = __token__
