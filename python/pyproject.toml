@@ -10,8 +10,8 @@ requires-python = ">=3.8"
 readme = "README.md"
 
 [project.urls]
-Homepage = "https://github.com/adhil/nitro-glyph"
-Source = "https://github.com/adhil/nitro-glyph"
+Homepage = "https://github.com/adhilsalim/nitro-glyph"
+Source = "https://github.com/adhilsalim/nitro-glyph"
 
 [tool.setuptools.packages.find]
 where = ["."]
