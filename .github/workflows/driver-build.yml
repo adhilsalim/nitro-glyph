@@ -1,0 +1,28 @@
+name: Driver Build
+
+on:
+  push:
+    paths:
+      - "driver/**"
+      - ".github/workflows/driver-build.yml"
+  pull_request:
+    paths:
+      - "driver/**"
+      - ".github/workflows/driver-build.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kernel headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y "linux-headers-$(uname -r)" build-essential
+
+      - name: Build kernel module
+        run: make -C driver
+
+      - name: Build test binaries
+        run: make -C driver/tests
